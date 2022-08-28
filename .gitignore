@@ -1,0 +1,14 @@
+/var/
+/logs/
+/.idea/
+/vendor/
+.vscode
+*.yml
+!codeception.yml
+!/tests/acceptance.suite.yml
+!/tests/functional.suite.yml
+!/tests/unit.suite.yml
+/tests/aspectCache
+/public/upload
+.env
+.DS_Store
