@@ -19,7 +19,7 @@
 
 # Развертывание
 
-- git clone https://**************************
+- git clone https://github.com/sandroauskas1987/calculation-module
 - composer install
 - [.env.example] rename  to [.env] and update value
 - vendor\bin\phinx migrate
