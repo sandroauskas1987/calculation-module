@@ -1,0 +1,19 @@
+TODO Миграции шпаргалка
+Создать миграцию
+    vendor\bin\phinx create NsSpServices
+
+Провести миграции
+    vendor\bin\phinx migrate
+
+Откатить на датуn
+    vendor\bin\phinx rollback -d 20220224
+
+Создать Seeds (Загзка начальных данных)
+    vendor\bin\phinx seed:create UserSeeder
+
+Выполнение всех Seeds
+    vendor\bin\phinx seed:run
+
+Выполнение конкретного seed (UserSeeder->name class)
+    vendor\bin\phinx seed:run -s UserSeeder
+
