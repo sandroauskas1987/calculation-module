@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Controllers\Catalog;
+
+use App\Controllers\CatalogBaseController;
+use App\Models\{{model.name}} as {{model.name}}Model;
+use Psr\Container\ContainerInterface;
+
+/**
+{% set OAs = {
+    'list': {
+        'method': 'Get',
+        'withId': false,
+        'summary': catalog.summary.list,
+        'type': 'List',
+    },
+    'get': {
+        'method': 'Get',
+        'withId': true,
+        'summary': catalog.summary.get,
+        'type': 'Get',
+    },
+    'add': {
+        'method': 'Post',
+        'withId': false,
+        'summary': catalog.summary.add,
+        'type': 'Add',
+        'changeExample': 'Запись № {id}, добавлена',
+    },
+    'edit': {
+        'method': 'Post',
+        'withId': true,
+        'summary': catalog.summary.edit,
+        'type': 'Edit',
+        'changeExample': 'Запись № {id}, сохранена.',
+    },
+    'delete': {
+        'method': 'Delete',
+        'withId': true,
+        'summary': catalog.summary.delete,
+        'type': 'Delete',
+        'changeExample': 'Запись удалена.',
+    },
+} %}
+{% for OA in OAs %}
+ * @OA\{{ OA.method }}(path="/cat/{{catalog.path}}{{ OA.withId ? '/{id}' : '' }}",
+ *   security={{ '{{"ac_token": {}}}' }},
+ *   tags={"{{ model.name }}"},
+ *   operationId="{{ model.name }}{{ OA.type }}",
+ *   summary="{{ OA.summary }}",
+{% if OA.withId %}
+ *   @OA\Parameter(
+ *     @OA\Schema(type="integer"),
+ *     name="id",
+ *     in="path",
+ *     description="ID",
+ *     required=true,
+ *     example=1,
+ *   ),
+{% endif %}
+{% if OA.method == 'Post' %}
+ *   @OA\RequestBody(
+ *     @OA\JsonContent(
+ *       required={{ '{' }}{{ props |filter(prop => prop.migration.required) |map(prop => '"' ~ prop.migration.name ~ '"') |join(', ') |raw }}{{ '}' }},
+{% for prop in props %}
+ *       @OA\Property(
+ *         property="{{ prop.migration.name }}",
+ *         type="{{ prop.catalog.type }}",
+ *         description="{{ prop.migration.comment }}",
+ *         example="{{ prop.catalog.example }}",
+ *       ),
+{% endfor %}
+ *     ),
+ *   ),
+{% endif %}
+ *   @OA\Response(response=200,
+ *     description="OK",
+ *     @OA\JsonContent(
+ *       @OA\Property(property="status", type="boolean", example=true),
+{% if OA.type == 'List' %}
+ *       @OA\Property(property="meta", type="object",example={"params":{}}),
+ *       @OA\Property(property="data", type="array",
+ *         @OA\Items(
+ *           ref="#/components/schemas/{{model.name}}"
+ *         ),
+ *       ),
+{% elseif OA.type == 'Get' %}
+ *       @OA\Property(property="data",
+ *         ref="#/components/schemas/{{model.name}}"
+ *       ),
+{% else %}
+ *       @OA\Property(property="data", type="object",
+ *         @OA\Property(property="message", type="string", description="Результат", example="{{ OA.changeExample }}")
+ *       )
+{% endif %}
+ *     )
+ *   ),
+ *   @OA\Response(response=401, description="Unauthorized", @OA\JsonContent(ref="#/components/schemas/response_error"))
+ * ),
+{% endfor %}
+ **/
+class {{model.name}} extends CatalogBaseController
+{
+    function __construct(ContainerInterface $container)
+    {
+        parent::__construct($container);
+        $this->allowedFields = (new {{model.name}}Model())->getFillable();
+
+        $this->model         = {{model.name}}Model::class;
+        $this->search_fields = [
+{% for prop in props %}
+            {{model.name}}Model::FIELD_{{ prop.model.const_name }},
+{% endfor %}
+        ];
+
+        $rules = [
+{% set maxLen = max(props|map(prop => prop.model.const_name|length)) %}
+{% for prop in props %}
+{% set len = prop.model.const_name|length %}
+            {{model.name}}Model::FIELD_{{prop.model.const_name}}{% for i in 0..(maxLen-len) %} {% endfor %}=> '{{ prop.catalog.rule|replace({'\'': '\\\''}|raw) }}',
+{% endfor %}
+        ];
+
+        $this->rules = [
+            'add'  => $rules,
+            'edit' => $rules,
+        ];
+    }{{ (catalog.additionalMethods ?? '')|raw }}
+}

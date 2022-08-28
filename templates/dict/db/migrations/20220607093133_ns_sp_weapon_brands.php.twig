@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Migration\DictMigration;
+use Phinx\Db\Adapter\AdapterInterface;
+use Phinx\Db\Table;
+
+final class {{ model.table.className }} extends DictMigration
+{
+    protected const TABLE_COMMENT = '{{ model.table.comment }}';
+    protected const CODE          = '{{ catalog.path }}';
+
+    protected $newCatalogTable        = '{{ model.table.name }}';
+    protected $newCatalogTableComment = self::TABLE_COMMENT;
+
+    protected $newCatalogScheme = [
+        'model' => '{{ model.name }}',
+        'title' => self::TABLE_COMMENT,
+        'code'  => self::CODE,
+    ];
+    protected $newCatalogConfig = [
+        'path'   => self::CODE,
+        'title'  => self::TABLE_COMMENT,
+        'fields' => [
+{% for prop in props %}
+            ['prop' => '{{ prop.migration.name }}', 'label' => '{{ prop.migration.comment }}'{% if prop.migration.front_type %}, 'type' => '{{ prop.migration.front_type }}'{% endif %}],
+{% endfor %}{{ (model.table.additionalFields ?? '')|raw }}
+        ],{{ (model.table.additionalConfig ?? '')|raw }}
+    ];
+
+    protected $data = [
+        [
+{% for prop in props %}
+            '{{ prop.migration.name }}' => '{{ prop.migration.example|raw }}',
+{% endfor %}
+        ],
+    ];
+
+    protected function buildTable(): Table
+    {
+        return $this->table($this->newCatalogTable)
+{% for prop in props %}
+            ->addColumn(
+                '{{ prop.migration.name }}',
+                {{ prop.migration.type }},
+                ['null' => {{ prop.migration.required == true ? 'false' : 'true' }}, 'comment' => '{{ prop.migration.comment }}']
+            )
+{% endfor %}
+{% for prop in props|filter(prop => prop.migration.unique) %}
+            ->addIndex('{{ prop.migration.name }}', [
+                'unique' => true,
+                'name'   => 'idx_{{ model.table.name }}_{{ prop.migration.name }}',
+            ])
+{% endfor %}
+            ->addTimestamps();
+    }
+}

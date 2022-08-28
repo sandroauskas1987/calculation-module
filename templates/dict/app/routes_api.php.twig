@@ -1,0 +1,15 @@
+        //todo DictGenerator
+        /**
+         * @OA\Tag(
+         *   name="{{model.name}}",
+         *   description="{{model.title}}"
+         * )
+         **/
+        $app->group('/{{catalog.path}}', function () use ($app) {
+            $app->get('', App\Controllers\Catalog\{{model.name}}::class . ':List');
+            $app->post('', App\Controllers\Catalog\{{model.name}}::class . ':Add');
+            $app->get('/{id:[0-9]+}', App\Controllers\Catalog\{{model.name}}::class . ':Get');
+            $app->post('/{id:[0-9]+}', App\Controllers\Catalog\{{model.name}}::class . ':Edit');
+            $app->delete('/{id:[0-9]+}', App\Controllers\Catalog\{{model.name}}::class . ':Delete');
+        })->add($auth_user);
+        //todo /DictGenerator

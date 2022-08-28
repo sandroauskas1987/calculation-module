@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Models;
+
+use App\Migration\Migration;
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @OA\Schema(schema="{{ model.name }}",
+ *   title="{{ model.title }}",
+ *   required={{ '{' }}{{ props |filter(prop => prop.migration.required) |map(prop => '"' ~ prop.migration.name ~ '"') |join(', ') |raw }}{{ '}' }},
+ *   @OA\Property(
+ *     property="id",
+ *     type="integer",
+ *     description="ID",
+ *     readOnly=true,
+ *     example=1,
+ *   ),
+{% for prop in props %}
+ *   @OA\Property(
+ *     property="{{ prop.migration.name }}",
+ *     type="{{ prop.catalog.type }}",
+ *     description="{{ prop.migration.comment }}",
+ *     example="{{ prop.migration.example|replace({'"': '""'})|raw }}",
+ *   ),
+{% endfor %}
+ * )
+ */
+class {{ model.name }} extends Model
+{
+    public const TABLE = '{{ model.table.name }}';
+
+    public    $table   = self::TABLE;
+    protected $hidden  = [Migration::FIELD_CREATED_AT, Migration::FIELD_UPDATED_AT];
+    protected $guarded = [self::PRIMARY_KEY];
+    protected $fillable = [
+{% for prop in props %}
+        self::FIELD_{{ prop.model.const_name }},
+{% endfor %}
+    ];
+
+{% set castProps = props|filter(prop => prop.model.cast) %}
+{% if castProps %}
+{% set maxLen = max(castProps|map(prop => prop.model.const_name|length)) %}
+    protected $casts = [
+{% for prop in castProps %}
+{% set len = prop.model.const_name|length %}
+        self::FIELD_{{ prop.model.const_name }}{% for i in 0..(maxLen-len) %} {% endfor %}=> '{{ prop.model.cast }}',
+{% endfor %}
+    ];
+
+{% endif %}
+{% set maxLen = max(props|map(prop => prop.model.const_name|length)) %}
+    public const PRIMARY_KEY{% for i in 0..(maxLen-5) %} {% endfor %}= 'id';
+{% for prop in props %}
+{% set len = prop.model.const_name|length %}
+    public const FIELD_{{ prop.model.const_name }}{% for i in 0..(maxLen-len) %} {% endfor %}= '{{ prop.migration.name }}';
+{% endfor %}{{ (model.additionalMethods ?? '')|raw }}
+}

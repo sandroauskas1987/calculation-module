@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html class="desktop landscape">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<h3>Функции и фильтры шаблонизатора TWIG</h3>
+<a target="_blank" href="https://twig.symfony.com/doc/2.x/templates.html">Docs</a>
+<ul>
+    <li>
+        <a target="_blank" href="https://twig.symfony.com/doc/2.x/filters/index.html">Cтандартные фильтры</a>
+    </li>
+    <li>
+        <a target="_blank" href="https://twig.symfony.com/doc/2.x/functions/index.html">Cтандартные функции</a>
+    </li>
+</ul>
+<p>Наши функции</p>
+<ul>
+    <li>
+     f_money_words('1234.25') - {{ f_money_words('1234.25') }}
+    </li>
+    <li style="width: 250px">
+        f_fio_table('фам', 'имя', 'отч')|raw - {{ f_fio_table('фам', 'имя', 'отч')|raw }}
+    </li>
+    <li>
+        f_fio_short('фам', 'имя', 'отч')|raw - {{ f_fio_short('фам', 'имя', 'отч')|raw }}
+    </li>
+    <li>
+        f_iof_short('фам', 'имя', 'отч')|raw - {{ f_iof_short('фам', 'имя', 'отч')|raw }}
+    </li>
+    <li style="width: 250px">
+        f_empty_row(20)|raw -
+        <hr>
+        {{ f_empty_row(10)|raw }}
+        <hr>
+    </li>
+    <li style="width: 250px">
+        f_line(90,'mm')|raw -
+        <hr>
+        {{ f_line(90)|raw }}
+        <hr>
+    </li>
+
+</ul>
+<p>Наши фильтры</p>
+<ul>
+    <li>
+        1245.456|f_number_format(2,'.',' ') - {{ 1245.456|f_number_format(2,'.',' ') }}
+    </li>
+    <li>
+        2022-08-01|f_date('d.m.Y') - {{ '2022-08-01'|f_date('d.m.Y') }}
+    </li>
+    <li>
+        13:45|f_time() - {{ '13:45'|f_time() }}
+    </li>
+
+
+</ul>
+
+</body>
