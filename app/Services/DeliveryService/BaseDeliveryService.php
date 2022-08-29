@@ -23,19 +23,29 @@ class BaseDeliveryService
 
     /**
      * Расчет стоимости доставки
+     * @param string  $sourceKladr  КЛАДР откуда
+     * @param string  $targetKladr  КЛАДР куда 
+     * @param float   $offer_price  стоимость одного километра доставки
      */
-    protected function calculatePrise(array $departure, array &$offer)
+    public function calculatePrise(string $sourceKladr, string  $targetKladr,float &$offer_price)
     {
-        $number_of_kilometers = $this->getNumberOfKilometers($departure['sourceKladr'], $departure['targetKladr']);
-        $offer['price'] = round($offer['price']  *  $number_of_kilometers, 2);
+        $offer_price = $this->getAmount($this->getNumberOfKilometers($sourceKladr, $targetKladr), $offer_price);
     }
 
     /**
-     * метод расчета километров от КЛАДР откуда до КЛАДР куда  
-     * @param string  $sourceKladr
-     * @param string  $targetKladr
+     * Получить сумму доставки
      */
-    private function getNumberOfKilometers(string $sourceKladr, string  $targetKladr)
+    public function getAmount (int $number_of_kilometers, float $offer_price):float
+    {
+        return round($offer_price  *  $number_of_kilometers, 2);
+    }
+
+    /**
+     * имитация метода расчета километров
+     * @param string  $sourceKladr  КЛАДР откуда
+     * @param string  $targetKladr  КЛАДР куда 
+     */
+    public function getNumberOfKilometers(string $sourceKladr, string  $targetKladr):int
     {
         return rand(strlen($sourceKladr), strlen($targetKladr));
     }

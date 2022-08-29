@@ -36,6 +36,17 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "9.5"
+        "phpunit/phpunit": "9.5",
+        "codeception/codeception": "^4.1",
+        "codeception/module-phpbrowser": "^2.0",
+        "codeception/module-asserts": "^2.0",
+        "dg/bypass-finals": "^1.3",
+        "codeception/module-db": "^2.0",
+        "codeception/module-rest": "^2.0",
+        "codeception/module-webdriver": "^2.0",
+        "mockery/mockery": "^1.5",
+        "codeception/mockery-module": "*",
+        "codeception/aspect-mock": "*",
+        "codeception/specify": "^2.0"
     }
 }

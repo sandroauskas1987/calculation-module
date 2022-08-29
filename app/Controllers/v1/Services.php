@@ -267,4 +267,28 @@ class Services extends InitBaseController
         }
         return $this->response($response);
     }
+
+    /**
+     * Все службы доставки
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     * @throws Exception
+     */
+    public function AllDelivery(Request $request, Response $response)
+    {
+        $this->checkValidate($request, $response);
+        try {
+            $result_list = [];
+            foreach ($this->getParsedRequestData($request) as $key => $request_params) {
+                $result_list[$key]['departure'] = $request_params['sourceKladr'] . ' =>  ' . $request_params['targetKladr'] . ' [' . $request_params['weight'] . ' kg]';
+                $result_list[$key]['offers']['slow'] = self::$slowDelivery->getOffers($request_params);
+                $result_list[$key]['offers']['fast'] = self::$fastDelivery->getOffers($request_params);
+            }
+            $this->setData($result_list);
+        } catch (Exception $e) {
+            $this->setError($e);
+        }
+        return $this->response($response);
+    }
 }

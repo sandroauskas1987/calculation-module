@@ -6,22 +6,20 @@ class CurlService
 {
     /** 
      * Запрос данных из сервиса транспортной компании
+     * @param string  $url          Адрес сервиса
+     * @param array   $params       Параметры для сервиса
      * @param string  $service_type ['slow'/'fast']
      */
-    public static function send($url, $params = [], $postFields = [], $headers = [],string $service_type)
+    public static function send(string $url,array $params = [],string $service_type):array
     {
-        $result = ['data' => [], 'error' => null];
         try {
             if (!rand(0, 7)) {// рандомная эмуляция запроса к сервису транспортной компании
                 $link = $url . '?' . http_build_query($params);
 
                 $curl = curl_init();
                 curl_setopt_array($curl, [
-                    CURLOPT_HTTPHEADER => $headers,
                     CURLOPT_URL => $link,
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_POST => !empty($postFields),
-                    CURLOPT_POSTFIELDS => json_encode($postFields),
                 ]);
 
                 $response = curl_exec($curl);
@@ -58,7 +56,7 @@ class CurlService
             ];
         } elseif($service_type === 'fast') {
             return [
-                "price" => $random(1,5000),
+                "price" => $random(1,300),
                 "date" => date('Y-m-d', $_SERVER['REQUEST_TIME']+ 3600 * 24 * rand(1, 10)),
                 "error" => ''
             ];

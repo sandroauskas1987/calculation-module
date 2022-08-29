@@ -4,6 +4,8 @@ namespace App\Services\DeliveryService;
 
 use App\Services\CurlService;
 
+use function PHPUnit\Framework\isNull;
+
 /**
  * Служба расчета медленных доставок, работает с поддерживающими медленные доставки транспортными компаниями
  * Class SlowDelivery
@@ -21,16 +23,22 @@ class SlowDeliveryService extends BaseDeliveryService
     /** 
      * Запрос стоимости и сроков доставки в контексте списка транспортных компаний
      */
-    public function getOffers(array $departure): array
+    public function getOffers($departure): array
     {
         $offers = [];
         foreach ($this->getTransportCompaniesAndParams() as $value) {
             $departure = array_merge($value['params'], $departure);
-            $res = CurlService::send($value['base_url'],$departure, [], [], 'slow');    // запрос цены и даты доставки от сервиса транспортной компании (предполагается что "price"  - цена за 1 км)
-            $this->formattingResponse($res);                                            // приведение к единому формату
-            $this->calculatePrise($departure, $res);                                    // расчет стоимости за каждый километр доставки
-            $res['Company'] = $value['Company_name'];
-            $offers[] = $res;
+
+            $serviceRes = CurlService::send($value['base_url'], $departure, 'slow'); // запрос цены и даты доставки от сервиса транспортной компании (предполагается что "price"  - цена за 1 км)
+
+            $this->formattingResponse($serviceRes); // приведение к формату
+
+            if (!isNull($serviceRes['price']))
+            $this->calculatePrise($departure['sourceKladr'], $departure['sourceKladr'], $serviceRes['price']); // расчет стоимости за каждый километр доставки
+
+            $serviceRes['company'] = $value['Company_name'];
+
+            $offers[] = $serviceRes;
         }
         return $offers;
     }
